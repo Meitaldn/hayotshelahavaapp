@@ -1,0 +1,11 @@
+{
+  "name": "חיות של אהבה - חזרות",
+  "short_name": "חיות של אהבה",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fffaf2",
+  "theme_color": "#6d4c7d",
+  "description": "אפליקציית חזרות אופליין למחזה חיות של אהבה"
+}
