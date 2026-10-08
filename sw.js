@@ -1,4 +1,4 @@
-const CACHE='hayot-shel-ahava-v8';
+const CACHE='hayot-shel-ahava-v10';
 const ASSETS=['./','./index.html','./script-data.json','./manifest.json','./icon.svg'];
 
 self.addEventListener('install',event=>{

@@ -21,7 +21,18 @@
 .selectedRole{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .selectedRole>div{display:flex;align-items:center;gap:8px}
 .selectedRole h2{margin:0}
-@media(max-width:430px){.characterGrid{grid-template-columns:1fr}}</style>
+@media(max-width:430px){.characterGrid{grid-template-columns:1fr}}
+/* Hebrew text + mixed punctuation: keep brackets, quotes and punctuation in logical order */
+.spoken,.stage,.speaker{direction:rtl;unicode-bidi:plaintext;text-align:right}
+.spoken{white-space:pre-wrap;word-break:normal;overflow-wrap:anywhere}
+.stage{unicode-bidi:plaintext}
+
+.roleChooser{overflow:visible}
+.roleSelect{width:100%;min-height:48px;border:1px solid #d9ccd9;border-radius:14px;padding:11px 14px;background:#fff;color:var(--ink);font:inherit;font-size:17px}
+.roleBlurb{margin-top:12px;padding:12px 14px;border-radius:14px;background:#faf3fc;border:1px solid #dfcfe3;color:var(--muted);font-size:14px;line-height:1.6}
+.roleBlurbTitle{color:var(--purple);font-weight:900;font-size:18px;margin-bottom:4px}
+.originalText{direction:rtl;unicode-bidi:plaintext;white-space:pre-wrap;text-align:right}
+</style>
 </head>
 <body><div class="app" id="app"></div>
 <script>
@@ -55,40 +66,28 @@ function shell(title,sub=''){
 function house(){
  return `<svg viewBox="0 0 760 270" xmlns="http://www.w3.org/2000/svg"><rect width="760" height="270" fill="#dcebed"/><circle cx="95" cy="82" r="32" fill="#f5d983"/><rect y="205" width="760" height="65" fill="#b8d19f"/><path d="M170 130L380 55l210 75v115H170z" fill="#fff3d9" stroke="#765080" stroke-width="5"/><path d="M145 132L380 45l235 87-15 31-220-81-220 81z" fill="#b85f61"/><rect x="225" y="145" width="82" height="62" fill="#d8edf0" stroke="#765080" stroke-width="4"/><rect x="339" y="145" width="82" height="62" fill="#d8edf0" stroke="#765080" stroke-width="4"/><rect x="453" y="145" width="82" height="62" fill="#d8edf0" stroke="#765080" stroke-width="4"/><circle cx="266" cy="176" r="15" fill="#f2ca75"/><circle cx="380" cy="176" r="15" fill="#f2ca75"/><circle cx="494" cy="176" r="15" fill="#f2ca75"/><path d="M95 220q0-55 35-70M130 220q15-45 48-58" fill="none" stroke="#71976c" stroke-width="9" stroke-linecap="round"/></svg>`
 }
+const BLURBS={"זוהר": "מחפשת אהבה ולא מוכנה לוותר עליה. גם כשקשה, היא ממשיכה לחפש את הדבר האמיתי.", "יואל": "נחוש לתפוס את הזדמנות חייו. הוא מחפש, מתכנן ולא רוצה לפספס את הרגע.", "רון": "מחפש את זוהר, אבל גם יודע ליהנות מבירה וממשהו קטן לאכול בדרך.", "נעמה": "כלה צעירה ונרגשת, שרוצה אהבה אמיתית ומנסה להבין מה הלב שלה באמת רוצה.", "חנה": "אמא של נעמה. מתרגשת, דואגת לבת שלה ותמיד יש לה מה להגיד על מה שקורה סביבה.", "תרנגולת": "שכנה מעורבת מאוד בחיי הבניין, שתמיד יש לה מה להגיד כשמשהו מתחיל להשתבש.", "שמואל": "אבא של נעמה. מגונן עליה, דואג לה ומנסה לעזור לה בדרך שלו.", "עוז": "שחקן מפורסם ובטוח בעצמו, שמכיר היטב את עולם הבמה והאהבות שמאחוריה.", "דולב": "שליח וולט שנכנס לתוך הסיפור בדיוק כשהכול מתחיל להסתבך.", "סנאית": "שכנה סקרנית שמוצאת את עצמה עמוק בתוך כל הדרמה של הבניין.", "חתולה": "שכנה חדה וסקרנית, חלק מהחבורה שמנסה להבין מה באמת קורה.", "קוקיה": "שכנה שמצטרפת לחבורה ולחיפושים כשהסיפור מתחיל להסתבך.", "עץ": "חלק מהעולם הבימתי של המחזה, שמופיע בסצנות המתאימות."};
 function home(){
- const roles=DATA.roles||[];
- const current=state.role||'';
+ const roles=DATA.roles||[], current=state.role||'';
  const scenes=current?DATA.scenes.filter(s=>(s.characters||[]).some(c=>norm(c)===norm(current))):[];
- const blurbs={"זוהר": "מחפשת אהבה ולא מוכנה לוותר עליה. גם כשקשה, היא ממשיכה לשאול למה אי אפשר פשוט למצוא אהבה.", "יואל": "נחוש לתפוס את הזדמנות חייו. הוא מחפש, מתכנן ומנסה לא לפספס את הרגע.", "רון": "מחפש את זוהר, אבל גם יודע שבירה ומשהו קטן לאכול יכולים לבוא טוב עכשיו.", "נעמה": "כלה צעירה ונרגשת, מעריצה מספר אחת של עוז שפירא ורוצה להרגיש אהבה אמיתית.", "חנה": "אמא של נעמה. מתרגשת מהחתונה, דואגת לבת שלה ומזכירה לה כמה היא יפה ואהובה.", "תרנגולת": "שכנה שמנסה לשמור על הסדר בבניין. מבחינתה, למצוא דיירים נורמליים זה כבר סיפור בפני עצמו.", "שמואל": "אבא של נעמה. מגונן עליה, אבל גם רוצה שתגדל ותהיה עצמאית.", "עוז": "שחקן מפורסם ובטוח בעצמו. הוא קורא לעצמו 'השחקן של המדינה' ומכיר היטב את עולם האהבות המזויפות.", "דולב": "שליח וולט שנכנס לתוך הדרמה בדיוק כשלא ממש ציפו לו.", "סנאית": "אחת מהשכנות. היא חלק מהחבורה שמנסה להבין איך להתמודד עם כל מה שקורה בבניין.", "חתולה": "שכנה חדה וסקרנית, חלק מהחבורה שמסתבכת יחד בתוך הסיפור.", "קוקיה": "שכנה נוספת שמצטרפת לחבורה ולחיפושים כשהכול מתחיל להסתבך.", "עץ": "חלק מהעולם הבימתי של המחזה, שמופיע לצד הדמויות בסצנות המתאימות."};
- const roleCards=roles.map(r=>{
-   const rs=(DATA.scenes||[]).filter(s=>(s.characters||[]).some(c=>norm(c)===norm(r)));
-   const selected=norm(r)===norm(current);
-   const blurb=blurbs[r]||'דמות מתוך המחזה חיות של אהבה.';
-   return `<button class="characterCard ${selected?'selected':''}" data-role="${esc(r)}">
-      <div class="charTitle"><span class="charEmoji">${emoji[r]||'🎭'}</span><b>${esc(r)}</b>${selected?'<span class="chosen">✓ נבחרה</span>':''}</div>
-      <div class="charBlurb">${esc(blurb)}</div>
-      <div class="meta">${rs.length} סצנות</div>
-   </button>`;
- }).join('');
- const main=current ? `
-   <div class="card"><div class="selectedRole"><div><span class="charEmoji">${emoji[current]||'🎭'}</span><h2>${esc(current)}</h2></div><button class="btn secondary" id="changeRole">🔄 החלפת דמות</button></div>
-   <div class="meta">הסצנות שלך מוצגות למטה.</div></div>
-   <div class="card"><h2>הסצנות שלי</h2>${scenes.length?scenes.map(sceneCard).join(''):'<div class="empty">לא נמצאו סצנות לדמות הזאת.</div>'}</div>`
- : `
-   <div class="card"><h2>🎭 בחרי את הדמות שלך</h2><div class="meta">בחירה אחת, ואז האפליקציה תציג לך רק את הסצנות שלך.</div><div class="characterGrid">${roleCards}</div></div>`;
+ const options=roles.map(r=>`<option value="${esc(r)}" ${norm(r)===norm(current)?'selected':''}>${emoji[r]||'🎭'} ${esc(r)}</option>`).join('');
+ const selectedInfo=current?`<div class="roleBlurb"><div class="roleBlurbTitle">${emoji[current]||'🎭'} ${esc(current)}</div><div>${esc(BLURBS[current]||'דמות מתוך המחזה חיות של אהבה.')}</div></div>`:'';
+ const main=current?`
+ <div class="card roleChooser"><h2>🎭 הדמות שלך</h2><select class="roleSelect" id="roleSelect">${options}</select>${selectedInfo}</div>
+ <div class="card"><h2>🎬 הסצנות שלי</h2><div class="meta">רק הסצנות שבהן ${esc(current)} משתתפת.</div>${scenes.map(sceneCard).join('')}</div>`
+ :`
+ <div class="card roleChooser"><h2>🎭 בחרי את הדמות שלך</h2><div class="meta">גללי ברשימה ובחרי דמות.</div><select class="roleSelect" id="roleSelect"><option value="" selected disabled>בחרי דמות...</option>${options}</select></div>`;
  app.innerHTML=shell('חיות של אהבה','חזרות · סצנות · טקסט · סטטיסטיקה')+`<main class="screen">
  <div class="card hero"><div class="house">${house()}</div><div class="heroText"><h1>חיות של אהבה</h1><p>חדר טקסט אופליין · סצנות · תור · סטטיסטיקה</p></div></div>
- <div class="homeBtns"><button class="btn" id="scenesBtn">סצנות</button><button class="btn" id="progressBtn">התקדמות</button><button class="btn" id="notesHomeBtn">📝 הערות</button></div>
+ <div class="homeBtns"><button class="btn" id="scenesBtn">סצנות</button><button class="btn" id="progressBtn">התקדמות</button></div>
  ${main}
  <div class="card install"><h3>📲 שמירה בטלפון</h3><p class="meta">אפשר להוסיף את חיות של אהבה למסך הבית ולהיכנס אליה כמו לאפליקציה.</p><button class="btn" id="installBtn">הוספה למסך הבית</button></div>
  </main>`;
  bindCommon();bindSceneButtons();
  document.getElementById('scenesBtn').onclick=()=>scenesPage();
  document.getElementById('progressBtn').onclick=progressPage;
- document.getElementById('notesHomeBtn').onclick=notesPage;
  document.getElementById('installBtn').onclick=installApp;
- document.getElementById('changeRole')?.addEventListener('click',()=>{state.role='';state.view='home';save();home()});
- document.querySelectorAll('[data-role]').forEach(card=>card.addEventListener('click',()=>{state.role=card.dataset.role;state.view='home';save();home()}));
+ document.getElementById('roleSelect').onchange=e=>{state.role=e.target.value;save();home()};
 }
 function renderHome(){state.view='home';save();home()}
 function sceneCard(s){
@@ -112,37 +111,23 @@ function splitStage(text){
  if(last<text.length)out.push({type:'spoken',text:text.slice(last)});
  return out.filter(x=>x.text.trim())
 }
-function noteKey(sceneId,eventIndex){return `${sceneId}|${eventIndex}`}
-function noteEditor(sceneId,eventIndex){
- const k=noteKey(sceneId,eventIndex);
- return `<div class="noteBox"><div class="noteHead"><b>📝 ההערה שלי</b><span class="saved">נשמרת בטלפון</span></div><textarea data-note="${sceneId}|${eventIndex}" placeholder="כתבי לעצמך הערה...">${esc(notes[k]||'')}</textarea></div>`
-}
-function bindNotes(){
- document.querySelectorAll('[data-note]').forEach(t=>t.addEventListener('input',()=>{notes[t.dataset.note]=t.value;saveNotes()}))
-}
 function reader(id){
  const s=DATA.scenes.find(x=>x.id===id);
  if(!s){home();return}
  let html='';
- (s.events||[]).forEach((e,i)=>{
+ (s.events||[]).forEach(e=>{
    if(e.type==='stage'){
      html+=`<div class="stage">${esc(e.text)}</div>`;
-     return;
+   }else{
+     html+=`<div class="event"><div class="dialogue"><div class="speaker">${esc(e.speaker)}:</div><div class="spoken originalText">${esc(e.text)}</div></div></div>`;
    }
-   html+=`<div class="event"><div class="dialogue"><div class="speaker">${esc(e.speaker)}:</div>`;
-   for(const part of splitStage(e.text)){
-     html += part.type==='stage'
-       ? `<div class="stage">${esc(part.text)}</div>`
-       : `<div class="spoken">${esc(part.text.trim())}</div>`;
-   }
-   html+=`</div>${noteEditor(s.id,i)}</div>`;
  });
  app.innerHTML=shell('סצנה '+s.id,'צפייה מלאה בטקסט')+
  `<main class="screen"><div class="card"><h2>${esc(s.title)}</h2>
  <div class="tabs"><button class="tab active">📖 צפייה בטקסט</button><button class="tab" id="goExam">🎭 בחינה</button></div>
  ${html||'<div class="empty">אין טקסט להצגה בסצנה הזאת.</div>'}
  </div></main>`;
- bindCommon();bindNotes();
+ bindCommon();
  document.getElementById('goExam').onclick=()=>startExam(s.id);
 }
 function startExam(id){
@@ -185,11 +170,6 @@ function check(target){
  const ok=same(input,target);const p=state.progress?.[exam.scene.id]||{correct:0,attempts:0,best:0};p.attempts++;
  if(ok){exam.correct++;exam.streak++;p.correct++;p.best=Math.max(p.best,exam.streak);state.progress=state.progress||{};state.progress[exam.scene.id]=p;save();document.getElementById('feedback').innerHTML='<div class="feedback good">✓ נכון! ממשיכים...</div>';setTimeout(()=>{advance();examPage()},450)}
  else{exam.streak=0;state.progress=state.progress||{};state.progress[exam.scene.id]=p;save();document.getElementById('feedback').innerHTML=`<div class="feedback bad"><b>לא בדיוק.</b><br>הטקסט המדויק:<br><strong>${esc(cleanSpoken(target))}</strong></div>`}
-}
-function notesPage(){
- const keys=Object.keys(notes).filter(k=>notes[k]?.trim());
- app.innerHTML=shell('ההערות שלי','נשמרות בטלפון')+`<main class="screen"><div class="card"><h2>📝 ההערות שלי</h2>${keys.length?keys.map(k=>{const [sid,eid]=k.split('|');const s=DATA.scenes.find(x=>x.id==sid);const e=s?.events?.[+eid];return `<div class="noteItem"><b>סצנה ${sid}</b> · ${e?.speaker||''}<p>${esc(notes[k])}</p></div>`}).join(''):'<div class="empty">עדיין אין הערות.</div>'}</div></main>`;
- bindCommon()
 }
 function progressPage(){
  const mine=selectedRoles();app.innerHTML=shell('התקדמות','לפי הדמויות שבחרת')+`<main class="screen"><div class="card"><h2>📈 ההתקדמות שלי</h2>${DATA.scenes.filter(s=>mine.some(r=>s.characters.includes(r))).map(s=>{const p=state.progress?.[s.id]||{correct:0,attempts:0};return `<div class="scene"><b>סצנה ${s.id} · ${esc(s.title)}</b><div class="meta">${p.correct||0} הצלחות · ${p.attempts||0} ניסיונות</div></div>`}).join('')}</div></main>`;bindCommon()
