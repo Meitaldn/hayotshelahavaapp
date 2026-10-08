@@ -45,22 +45,16 @@ function house(){
  return `<svg viewBox="0 0 760 270" xmlns="http://www.w3.org/2000/svg"><rect width="760" height="270" fill="#dcebed"/><circle cx="95" cy="82" r="32" fill="#f5d983"/><rect y="205" width="760" height="65" fill="#b8d19f"/><path d="M170 130L380 55l210 75v115H170z" fill="#fff3d9" stroke="#765080" stroke-width="5"/><path d="M145 132L380 45l235 87-15 31-220-81-220 81z" fill="#b85f61"/><rect x="225" y="145" width="82" height="62" fill="#d8edf0" stroke="#765080" stroke-width="4"/><rect x="339" y="145" width="82" height="62" fill="#d8edf0" stroke="#765080" stroke-width="4"/><rect x="453" y="145" width="82" height="62" fill="#d8edf0" stroke="#765080" stroke-width="4"/><circle cx="266" cy="176" r="15" fill="#f2ca75"/><circle cx="380" cy="176" r="15" fill="#f2ca75"/><circle cx="494" cy="176" r="15" fill="#f2ca75"/><path d="M95 220q0-55 35-70M130 220q15-45 48-58" fill="none" stroke="#71976c" stroke-width="9" stroke-linecap="round"/></svg>`
 }
 function home(){
- const roles=DATA.roles||[];
- const current=state.role||'';
- const scenes=current?DATA.scenes.filter(s=>s.characters.some(c=>norm(c)===norm(current))):[];
+ const scenes=DATA.scenes||[];
  app.innerHTML=shell('חיות של אהבה','חזרות · סצנות · טקסט · סטטיסטיקה')+
  `<main class="screen">
  <div class="card hero"><div class="house">${house()}</div><div class="heroText"><h1>חיות של אהבה</h1><p>חדר טקסט אופליין · סצנות · תור · סטטיסטיקה</p></div></div>
  <div class="homeBtns"><button class="btn" id="scenesBtn">סצנות</button><button class="btn" id="progressBtn">התקדמות</button><button class="btn" id="notesHomeBtn">📝 הערות</button></div>
- <div class="card"><h2>הדמות שלי</h2><div class="meta">בחרי את הדמות שאת משחקת</div>
- <div class="roleRow"><select class="roleSelect" id="roleSelect"><option value="">בחרי דמות...</option>${roles.map(r=>`<option value="${esc(r)}" ${norm(r)===norm(current)?'selected':''}>${emoji[r]||'🎭'} ${esc(r)}</option>`).join('')}</select><button class="checkRole" id="setRole">שמירה ✓</button></div>
- ${current?`<div class="meta" style="margin-top:9px">הדמות שנבחרה: <b>${emoji[current]||'🎭'} ${esc(current)}</b></div>`:''}</div>
- ${current?`<div class="card"><h2>הסצנות שלי</h2>${scenes.length?scenes.map(sceneCard).join(''):'<div class="empty">לא נמצאו סצנות לדמות הזאת.</div>'}</div>`:`<div class="card"><div class="empty">בחרי דמות כדי להתחיל 🎭</div></div>`}
+ <div class="card"><h2>כל הסצנות</h2>${scenes.map(sceneCard).join('')}</div>
  <div class="card install"><h3>📲 שמירה בטלפון</h3><p class="meta">אפשר להוסיף את חיות של אהבה למסך הבית ולהיכנס אליה כמו לאפליקציה.</p><button class="btn" id="installBtn">הוספה למסך הבית</button></div>
  </main>`;
- bindCommon();
- document.getElementById('setRole').onclick=()=>{const r=document.getElementById('roleSelect').value;if(!r)return;state.role=r;state.view='home';save();home()};
- document.getElementById('scenesBtn').onclick=()=>document.querySelector('.card:nth-of-type(3)')?.scrollIntoView({behavior:'smooth'});
+ bindCommon();bindSceneButtons();
+ document.getElementById('scenesBtn').onclick=()=>scenesPage();
  document.getElementById('progressBtn').onclick=progressPage;
  document.getElementById('notesHomeBtn').onclick=notesPage;
  document.getElementById('installBtn').onclick=installApp;
@@ -72,10 +66,9 @@ function sceneCard(s){
  return `<div class="scene"><span class="sceneNo">סצנה ${s.id}</span><h3>${esc(s.title)}</h3><div class="meta">${s.characters.join(' · ')}</div>${p.attempts?`<div class="meta">${p.correct} הצלחות · ${p.attempts} ניסיונות</div><div class="progress"><i style="width:${pct}%"></i></div>`:''}<div class="actions"><button class="btn" data-exam="${s.id}">🎭 בחינה</button><button class="btn secondary" data-read="${s.id}">📖 צפייה בטקסט</button></div></div>`
 }
 function scenesPage(){
- const role=state.role;
- const scenes=DATA.scenes.filter(s=>role&&s.characters.some(c=>norm(c)===norm(role)));
- app.innerHTML=shell('הסצנות שלי',role||'לא נבחרה דמות')+
- `<main class="screen"><div class="card"><h2>הסצנות שלי</h2>${scenes.length?scenes.map(sceneCard).join(''):'<div class="empty">בחרי דמות במסך הבית.</div>'}</div></main>`;
+ const scenes=DATA.scenes||[];
+ app.innerHTML=shell('סצנות','כל סצנות המחזה')+
+ `<main class="screen"><div class="card"><h2>כל הסצנות</h2>${scenes.map(sceneCard).join('')}</div></main>`;
  bindCommon();bindSceneButtons();
 }
 function bindSceneButtons(){
@@ -121,42 +114,49 @@ function reader(id){
  bindCommon();bindNotes();
  document.getElementById('goExam').onclick=()=>startExam(s.id);
 }
-function startExam(id){exam={scene:DATA.scenes.find(s=>s.id===id),index:-1,attempts:0,correct:0,streak:0};advance();state.view='exam';state.sceneId=id;save();examPage()}
-function advance(){const es=exam.scene.events||[];for(let i=exam.index+1;i<es.length;i++){if(es[i].type==='dialogue'&&selectedRoles().some(r=>norm(r)===norm(es[i].speaker))){exam.index=i;return}}exam.index=es.length}
+function startExam(id){
+ const s=DATA.scenes.find(x=>x.id===id);
+ if(!s){return}
+ const roles=(s.characters||[]).filter(Boolean);
+ app.innerHTML=shell('בחינה · סצנה '+s.id,'בחרי את הדמות שאת מתרגלת עכשיו')+
+ `<main class="screen"><div class="card"><h2>${esc(s.title)}</h2><p class="meta">הבחינה היא לפי הטקסט המדויק של הסצנה.</p>
+ <select class="roleSelect" id="examRole"><option value="">בחרי דמות...</option>${roles.map(r=>`<option value="${esc(r)}">${emoji[r]||'🎭'} ${esc(r)}</option>`).join('')}</select>
+ <div class="actions"><button class="btn" id="beginExam">התחלת בחינה</button><button class="btn secondary" id="readScene">📖 צפייה בטקסט</button></div>
+ </div></main>`;
+ bindCommon();
+ document.getElementById('beginExam').onclick=()=>{
+   const role=document.getElementById('examRole').value;
+   if(!role)return;
+   exam={scene:s,index:-1,attempts:0,correct:0,streak:0,role};
+   advance();examPage();
+ };
+ document.getElementById('readScene').onclick=()=>reader(id);
+}
+function advance(){
+ const es=exam.scene.events||[];
+ for(let i=exam.index+1;i<es.length;i++){
+   if(es[i].type==='dialogue'&&norm(es[i].speaker)===norm(exam.role)){exam.index=i;return}
+ }
+ exam.index=es.length;
+}
 function examPage(){
  const s=exam.scene,es=s.events||[];
  if(exam.index>=es.length){
    app.innerHTML=shell('סיום · סצנה '+s.id,'כל התורות שלך הושלמו')+
    `<main class="screen"><div class="card"><h2>כל הכבוד 🎉</h2>
    <div class="stats"><div class="stat"><b>${exam.correct}</b><span>הצלחות</span></div><div class="stat"><b>${exam.attempts}</b><span>ניסיונות</span></div><div class="stat"><b>${exam.streak}</b><span>רצף</span></div></div>
-   <div class="actions"><button class="btn" id="again">🔁 שוב</button><button class="btn secondary" id="reader">📖 הטקסט</button></div>
-   </div></main>`;
-   bindCommon();
-   document.getElementById('again').onclick=()=>startExam(s.id);
-   document.getElementById('reader').onclick=()=>reader(s.id);
-   return;
+   <div class="actions"><button class="btn" id="again">🔁 שוב</button><button class="btn secondary" id="reader">📖 הטקסט</button></div></div></main>`;
+   bindCommon();document.getElementById('again').onclick=()=>startExam(s.id);document.getElementById('reader').onclick=()=>reader(s.id);return;
  }
  let context=[];
- for(let i=exam.index-1;i>=0;i--){
-   if(es[i].type==='dialogue' && norm(es[i].speaker)===norm(state.role)) break;
-   context.unshift(es[i]);
- }
- const html=context.map(e=>{
-   if(e.type==='stage') return `<div class="stage">${esc(e.text)}</div>`;
-   return `<div class="examContext"><div class="speaker">${esc(e.speaker)}:</div>${splitStage(e.text).map(x=>x.type==='stage'?`<div class="stage">${esc(x.text)}</div>`:`<div class="spoken">${esc(x.text.trim())}</div>`).join('')}</div>`;
- }).join('');
+ for(let i=exam.index-1;i>=0;i--){if(es[i].type==='dialogue'&&norm(es[i].speaker)===norm(exam.role))break;context.unshift(es[i])}
+ const html=context.map(e=>e.type==='stage'?`<div class="stage">${esc(e.text)}</div>`:`<div class="examContext"><div class="speaker">${esc(e.speaker)}:</div>${splitStage(e.text).map(x=>x.type==='stage'?`<div class="stage">${esc(x.text)}</div>`:`<div class="spoken">${esc(x.text.trim())}</div>`).join('')}</div>`).join('');
  const target=es[exam.index].text;
- app.innerHTML=shell('בחינה · סצנה '+s.id,'כשהתור שלך מגיע - הטקסט מוסתר')+
- `<main class="screen"><div class="card"><h2>${esc(s.title)}</h2>
- <div class="progress"><i style="width:${Math.round((exam.index/Math.max(1,es.length))*100)}%"></i></div>
- ${html}
- <div class="yourTurn"><h3>🎭 תורך</h3><div class="meta">כתבי את המשפט לפי המחזה.</div>
- <textarea class="answer" id="answer" placeholder="המשפט שלך..."></textarea>
- <div class="actions"><button class="btn" id="check">בדיקה ✓</button><button class="btn secondary" id="readNow">📖 צפייה בטקסט</button></div>
- <div id="feedback"></div></div></div></main>`;
- bindCommon();
- document.getElementById('check').onclick=()=>check(target);
- document.getElementById('readNow').onclick=()=>reader(s.id);
+ app.innerHTML=shell('בחינה · סצנה '+s.id,'הדמות שלך: '+exam.role)+
+ `<main class="screen"><div class="card"><h2>${esc(s.title)}</h2><div class="progress"><i style="width:${Math.round((exam.index/Math.max(1,es.length))*100)}%"></i></div>${html}
+ <div class="yourTurn"><h3>🎭 תורך</h3><div class="meta">כתבי את המשפט לפי המחזה.</div><textarea class="answer" id="answer" placeholder="המשפט שלך..."></textarea>
+ <div class="actions"><button class="btn" id="check">בדיקה ✓</button><button class="btn secondary" id="readNow">📖 צפייה בטקסט</button></div><div id="feedback"></div></div></div></main>`;
+ bindCommon();document.getElementById('check').onclick=()=>check(target);document.getElementById('readNow').onclick=()=>reader(s.id);
 }
 function check(target){
  const input=document.getElementById('answer').value;exam.attempts++;
@@ -187,7 +187,7 @@ function render(){
  if(state.view==='progress')return progressPage();
  return home();
 }
-fetch('./script-data.json?v=5',{cache:'no-store'}).then(r=>r.json()).then(d=>{DATA=d;state.roles=selectedRoles();state.progress=state.progress||{};state.view='home';save();render()}).catch(()=>{app.innerHTML='<main class="screen"><div class="card">לא הצלחתי לטעון את המחזה. רענני את הדף.</div></main>'});
+fetch('./script-data.json?v=6',{cache:'no-store'}).then(r=>r.json()).then(d=>{DATA=d;state.roles=selectedRoles();state.progress=state.progress||{};state.view='home';save();render()}).catch(()=>{app.innerHTML='<main class="screen"><div class="card">לא הצלחתי לטעון את המחזה. רענני את הדף.</div></main>'});
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 </script>
 </body></html>
