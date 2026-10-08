@@ -10,7 +10,18 @@
 <style>
 :root{--purple:#765080;--purple2:#eee2f1;--ink:#302735;--muted:#776d7a;--paper:#fffdf9;--line:#eadfe9;--green:#5d7c55;--yellow:#fff4c8;--shadow:0 7px 24px rgba(75,48,80,.11)}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#f7eee6,#f1e9f2 62%,#faf3eb);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif}.app{max-width:760px;margin:auto;min-height:100vh}.top{position:sticky;top:0;z-index:20;background:#fffaf4ef;backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:10px 14px;display:flex;align-items:center;gap:9px}.back{width:43px;height:43px;border:0;border-radius:50%;background:#fff;box-shadow:var(--shadow);font-size:28px;line-height:1}.brand{flex:1;font-weight:900;font-size:18px}.brand small{display:block;font-weight:400;font-size:12px;color:var(--muted);margin-top:2px}.iconBtn{border:0;background:transparent;font-size:22px;padding:8px}.screen{padding:12px 16px 45px}.card{background:#fffdf9ee;border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);padding:16px;margin:11px 0}.hero{padding:0;overflow:hidden}.house{margin:16px;border-radius:25px;overflow:hidden;background:#dcebed}.house svg{width:100%;display:block}.heroText{padding:4px 20px 22px;text-align:right}.hero h1{font:42px Georgia,serif;margin:0 0 6px}.hero p{font-size:17px;color:var(--muted);margin:0;line-height:1.5}.homeBtns{display:flex;gap:9px;overflow:auto;padding:0 2px}.btn{border:0;border-radius:15px;padding:12px 17px;background:var(--purple);color:white;font-weight:800;font-size:15px;white-space:nowrap}.btn.secondary{background:var(--purple2);color:var(--ink)}.btn.ghost{background:transparent;color:var(--purple);border:1px solid var(--line)}h2,h3{margin:0 0 7px;font-family:Georgia,serif}.meta{font-size:13px;color:var(--muted)}.roleRow{display:flex;gap:9px;align-items:center;margin-top:12px}.roleSelect{flex:1;border:1px solid #d9ccd9;border-radius:13px;padding:12px;background:#fff;font:inherit;color:var(--ink);min-width:0}.checkRole{border:0;border-radius:13px;padding:12px 13px;background:var(--purple);color:#fff;font-weight:800}.myRoles{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.chip{background:#f0e3f2;border:1px solid #dcc9e0;border-radius:999px;padding:7px 10px;font-size:13px}.chip button{border:0;background:none;margin-right:4px;color:#7b5d83;font-weight:900}.scene{padding:15px;border:1px solid var(--line);border-radius:19px;background:#fff;margin:10px 0}.sceneNo{display:inline-block;background:#eee2f1;color:var(--purple);border-radius:999px;padding:5px 9px;font-size:12px;font-weight:900}.scene h3{font-size:23px;margin:8px 0 3px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}.progress{height:7px;background:#e9e0e7;border-radius:99px;overflow:hidden;margin:10px 0}.progress i{display:block;height:100%;background:var(--purple)}.tabs{display:flex;gap:4px;background:#f0e7f2;border-radius:14px;padding:4px;margin:10px 0}.tab{flex:1;border:0;background:transparent;border-radius:10px;padding:10px;font-weight:800;color:var(--muted)}.tab.active{background:#fff;color:var(--ink);box-shadow:0 2px 8px #0001}.event{margin:10px 0}.dialogue{background:#fff;border:1px solid var(--line);border-radius:17px;padding:12px 14px}.speaker{font-weight:900;color:var(--purple);margin-bottom:4px}.spoken{font-size:19px;line-height:1.78;white-space:pre-wrap}.stage{color:#776d7a;font-size:14px;font-style:italic;text-align:center;margin:9px 2px;line-height:1.5}.noteBox{margin-top:8px;background:#fbf4fc;border:1px solid #dfcfe3;border-radius:13px;padding:9px}.noteHead{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);margin-bottom:6px}.noteBox textarea{width:100%;min-height:65px;border:1px solid #d9cbdc;border-radius:10px;padding:9px;background:#fff;color:var(--ink);font:inherit;resize:vertical}.saved{color:var(--green)}.examContext{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;margin:8px 0}.examContext .spoken{font-size:18px}.yourTurn{background:var(--yellow);border:2px solid #eadb92;border-radius:19px;padding:16px;margin:13px 0}.yourTurn h3{font-size:25px}.answer{width:100%;min-height:105px;border:1px solid #d7cadb;border-radius:13px;padding:11px;font:inherit;background:#fff}.feedback{margin-top:8px;padding:11px;border-radius:12px}.good{background:#e7f1e5;color:#40583b}.bad{background:#f8e7e7;color:#713d3d}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}.stat b{display:block;font-size:21px}.stat span{font-size:11px;color:var(--muted)}.noteItem{background:#fff;border:1px solid var(--line);border-radius:15px;padding:12px;margin:8px 0}.empty{text-align:center;color:var(--muted);padding:25px}.install{background:linear-gradient(135deg,#eee2f1,#f8efe6)}@media(min-width:650px){.screen{padding-left:22px;padding-right:22px}}
-</style>
+.characterGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:13px}
+.characterCard{border:1px solid var(--line);border-radius:18px;background:#fff;padding:13px;text-align:right;color:var(--ink);font:inherit;cursor:pointer;box-shadow:0 2px 8px #00000008}
+.characterCard:active{transform:scale(.98)}
+.characterCard.selected{border:2px solid var(--purple);background:#faf3fc}
+.charTitle{display:flex;align-items:center;gap:7px;font-size:18px}
+.charEmoji{font-size:28px}
+.chosen{margin-right:auto;background:var(--purple2);color:var(--purple);border-radius:999px;padding:4px 7px;font-size:10px}
+.charBlurb{font-size:13px;line-height:1.5;color:var(--muted);margin:8px 0;min-height:58px}
+.selectedRole{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.selectedRole>div{display:flex;align-items:center;gap:8px}
+.selectedRole h2{margin:0}
+@media(max-width:430px){.characterGrid{grid-template-columns:1fr}}</style>
 </head>
 <body><div class="app" id="app"></div>
 <script>
@@ -45,16 +56,30 @@ function house(){
  return `<svg viewBox="0 0 760 270" xmlns="http://www.w3.org/2000/svg"><rect width="760" height="270" fill="#dcebed"/><circle cx="95" cy="82" r="32" fill="#f5d983"/><rect y="205" width="760" height="65" fill="#b8d19f"/><path d="M170 130L380 55l210 75v115H170z" fill="#fff3d9" stroke="#765080" stroke-width="5"/><path d="M145 132L380 45l235 87-15 31-220-81-220 81z" fill="#b85f61"/><rect x="225" y="145" width="82" height="62" fill="#d8edf0" stroke="#765080" stroke-width="4"/><rect x="339" y="145" width="82" height="62" fill="#d8edf0" stroke="#765080" stroke-width="4"/><rect x="453" y="145" width="82" height="62" fill="#d8edf0" stroke="#765080" stroke-width="4"/><circle cx="266" cy="176" r="15" fill="#f2ca75"/><circle cx="380" cy="176" r="15" fill="#f2ca75"/><circle cx="494" cy="176" r="15" fill="#f2ca75"/><path d="M95 220q0-55 35-70M130 220q15-45 48-58" fill="none" stroke="#71976c" stroke-width="9" stroke-linecap="round"/></svg>`
 }
 function home(){
- const scenes=DATA.scenes||[];
- app.innerHTML=shell('חיות של אהבה','חזרות · סצנות · טקסט · סטטיסטיקה')+
- `<main class="screen">
+ const roles=DATA.roles||[];
+ const current=state.role||'';
+ const scenes=current?DATA.scenes.filter(s=>(s.characters||[]).some(c=>norm(c)===norm(current))):[];
+ const blurbs={"זוהר": "מחפשת אהבה ולא מוכנה לוותר עליה. גם כשקשה, היא ממשיכה לשאול למה אי אפשר פשוט למצוא אהבה.", "יואל": "נחוש לתפוס את הזדמנות חייו. הוא מחפש, מתכנן ומנסה לא לפספס את הרגע.", "רון": "מחפש את זוהר, אבל גם יודע שבירה ומשהו קטן לאכול יכולים לבוא טוב עכשיו.", "נעמה": "כלה צעירה ונרגשת, מעריצה מספר אחת של עוז שפירא ורוצה להרגיש אהבה אמיתית.", "חנה": "אמא של נעמה. מתרגשת מהחתונה, דואגת לבת שלה ומזכירה לה כמה היא יפה ואהובה.", "תרנגולת": "שכנה שמנסה לשמור על הסדר בבניין. מבחינתה, למצוא דיירים נורמליים זה כבר סיפור בפני עצמו.", "שמואל": "אבא של נעמה. מגונן עליה, אבל גם רוצה שתגדל ותהיה עצמאית.", "עוז": "שחקן מפורסם ובטוח בעצמו. הוא קורא לעצמו 'השחקן של המדינה' ומכיר היטב את עולם האהבות המזויפות.", "דולב": "שליח וולט שנכנס לתוך הדרמה בדיוק כשלא ממש ציפו לו.", "סנאית": "אחת מהשכנות. היא חלק מהחבורה שמנסה להבין איך להתמודד עם כל מה שקורה בבניין.", "חתולה": "שכנה חדה וסקרנית, חלק מהחבורה שמסתבכת יחד בתוך הסיפור.", "קוקיה": "שכנה נוספת שמצטרפת לחבורה ולחיפושים כשהכול מתחיל להסתבך.", "עץ": "חלק מהעולם הבימתי של המחזה, שמופיע לצד הדמויות בסצנות המתאימות."};
+ const roleCards=roles.map(r=>{
+   const rs=(DATA.scenes||[]).filter(s=>(s.characters||[]).some(c=>norm(c)===norm(r)));
+   const selected=norm(r)===norm(current);
+   const blurb=blurbs[r]||'דמות מתוך המחזה חיות של אהבה.';
+   return `<button class="characterCard ${selected?'selected':''}" data-role="${esc(r)}">
+      <div class="charTitle"><span class="charEmoji">${emoji[r]||'🎭'}</span><b>${esc(r)}</b>${selected?'<span class="chosen">✓ נבחרה</span>':''}</div>
+      <div class="charBlurb">${esc(blurb)}</div>
+      <div class="meta">${rs.length} סצנות</div>
+   </button>`;
+ }).join('');
+ const main=current ? `
+   <div class="card"><div class="selectedRole"><div><span class="charEmoji">${emoji[current]||'🎭'}</span><h2>${esc(current)}</h2></div><button class="btn secondary" id="changeRole">🔄 החלפת דמות</button></div>
+   <div class="meta">הסצנות שלך מוצגות למטה.</div></div>
+   <div class="card"><h2>הסצנות שלי</h2>${scenes.length?scenes.map(sceneCard).join(''):'<div class="empty">לא נמצאו סצנות לדמות הזאת.</div>'}</div>`
+ : `
+   <div class="card"><h2>🎭 בחרי את הדמות שלך</h2><div class="meta">בחירה אחת, ואז האפליקציה תציג לך רק את הסצנות שלך.</div><div class="characterGrid">${roleCards}</div></div>`;
+ app.innerHTML=shell('חיות של אהבה','חזרות · סצנות · טקסט · סטטיסטיקה')+`<main class="screen">
  <div class="card hero"><div class="house">${house()}</div><div class="heroText"><h1>חיות של אהבה</h1><p>חדר טקסט אופליין · סצנות · תור · סטטיסטיקה</p></div></div>
  <div class="homeBtns"><button class="btn" id="scenesBtn">סצנות</button><button class="btn" id="progressBtn">התקדמות</button><button class="btn" id="notesHomeBtn">📝 הערות</button></div>
- <div class="card"><h2>כל הסצנות</h2>${scenes.map(sceneCard).join('')}</div>
- <div class="card"><h2>🎭 הדמויות במחזה</h2><div class="characterGrid">${(DATA.roles||[]).map(r=>{
- const rs=(DATA.scenes||[]).filter(s=>(s.characters||[]).some(c=>norm(c)===norm(r)));
- return `<div class="characterCard"><div class="charTitle">${emoji[r]||'🎭'} <b>${esc(r)}</b></div><div class="meta">${rs.length} סצנות</div><div class="charScenes">${rs.slice(0,3).map(s=>`• ${esc(s.title)}`).join('<br>')}${rs.length>3?'<br>• ועוד...':''}</div></div>`;
-}).join('')}</div></div>
+ ${main}
  <div class="card install"><h3>📲 שמירה בטלפון</h3><p class="meta">אפשר להוסיף את חיות של אהבה למסך הבית ולהיכנס אליה כמו לאפליקציה.</p><button class="btn" id="installBtn">הוספה למסך הבית</button></div>
  </main>`;
  bindCommon();bindSceneButtons();
@@ -62,6 +87,8 @@ function home(){
  document.getElementById('progressBtn').onclick=progressPage;
  document.getElementById('notesHomeBtn').onclick=notesPage;
  document.getElementById('installBtn').onclick=installApp;
+ document.getElementById('changeRole')?.addEventListener('click',()=>{state.role='';state.view='home';save();home()});
+ document.querySelectorAll('[data-role]').forEach(card=>card.addEventListener('click',()=>{state.role=card.dataset.role;state.view='home';save();home()}));
 }
 function renderHome(){state.view='home';save();home()}
 function sceneCard(s){
@@ -120,21 +147,12 @@ function reader(id){
 }
 function startExam(id){
  const s=DATA.scenes.find(x=>x.id===id);
- if(!s){return}
- const roles=(s.characters||[]).filter(Boolean);
- app.innerHTML=shell('בחינה · סצנה '+s.id,'בחרי את הדמות שאת מתרגלת עכשיו')+
- `<main class="screen"><div class="card"><h2>${esc(s.title)}</h2><p class="meta">הבחינה היא לפי הטקסט המדויק של הסצנה.</p>
- <select class="roleSelect" id="examRole"><option value="">בחרי דמות...</option>${roles.map(r=>`<option value="${esc(r)}">${emoji[r]||'🎭'} ${esc(r)}</option>`).join('')}</select>
- <div class="actions"><button class="btn" id="beginExam">התחלת בחינה</button><button class="btn secondary" id="readScene">📖 צפייה בטקסט</button></div>
- </div></main>`;
- bindCommon();
- document.getElementById('beginExam').onclick=()=>{
-   const role=document.getElementById('examRole').value;
-   if(!role)return;
-   exam={scene:s,index:-1,attempts:0,correct:0,streak:0,role};
-   advance();examPage();
- };
- document.getElementById('readScene').onclick=()=>reader(id);
+ if(!s)return;
+ const role=state.role;
+ if(!role){home();return}
+ exam={scene:s,index:-1,attempts:0,correct:0,streak:0,role};
+ advance();
+ examPage();
 }
 function advance(){
  const es=exam.scene.events||[];
@@ -181,7 +199,7 @@ function installApp(){if(deferredInstall){deferredInstall.prompt();deferredInsta
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e})
 function bindCommon(){
  document.getElementById('back')?.addEventListener('click',()=>{state.view='home';save();home()});
- document.getElementById('notesBtn')?.addEventListener('click',notesPage)
+ document.getElementById('notesBtn')?.addEventListener('click',notesPage);
 }
 function render(){
  if(!DATA)return;
@@ -191,7 +209,7 @@ function render(){
  if(state.view==='progress')return progressPage();
  return home();
 }
-fetch('./script-data.json?v=7',{cache:'no-store'}).then(r=>r.json()).then(d=>{DATA=d;state.roles=selectedRoles();state.progress=state.progress||{};state.view='home';save();render()}).catch(()=>{app.innerHTML='<main class="screen"><div class="card">לא הצלחתי לטעון את המחזה. רענני את הדף.</div></main>'});
+fetch('./script-data.json?v=8',{cache:'no-store'}).then(r=>r.json()).then(d=>{DATA=d;state.roles=selectedRoles();state.progress=state.progress||{};state.view='home';save();render()}).catch(()=>{app.innerHTML='<main class="screen"><div class="card">לא הצלחתי לטעון את המחזה. רענני את הדף.</div></main>'});
 if('serviceWorker' in navigator)window.addEventListener('load',async()=>{
  try{
    const regs=await navigator.serviceWorker.getRegistrations();
