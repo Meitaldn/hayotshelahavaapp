@@ -1,1 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="120" fill="#8b6c9c"/><path d="M92 240 256 110l164 130v178H92z" fill="#fffaf2"/><path d="M72 246 256 94l184 152-30 36-154-126L102 282z" fill="#9a4e50"/><circle cx="190" cy="310" r="42" fill="#a9c9d5"/><circle cx="322" cy="310" r="42" fill="#d99a9f"/><path d="M224 418v-82h64v82" fill="#8b6c9c"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" rx="110" fill="#765080"/>
+<rect x="90" y="180" width="332" height="230" rx="30" fill="#fff3d9"/>
+<path d="M65 190L256 75l191 115-22 45L256 128 87 235z" fill="#b85f61"/>
+<circle cx="190" cy="285" r="35" fill="#f2ca75"/><circle cx="322" cy="285" r="35" fill="#f2ca75"/>
+<text x="256" y="475" text-anchor="middle" font-family="sans-serif" font-size="42" font-weight="700" fill="white">חיות</text>
+</svg>
