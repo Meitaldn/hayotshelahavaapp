@@ -51,6 +51,10 @@ function home(){
  <div class="card hero"><div class="house">${house()}</div><div class="heroText"><h1>חיות של אהבה</h1><p>חדר טקסט אופליין · סצנות · תור · סטטיסטיקה</p></div></div>
  <div class="homeBtns"><button class="btn" id="scenesBtn">סצנות</button><button class="btn" id="progressBtn">התקדמות</button><button class="btn" id="notesHomeBtn">📝 הערות</button></div>
  <div class="card"><h2>כל הסצנות</h2>${scenes.map(sceneCard).join('')}</div>
+ <div class="card"><h2>🎭 הדמויות במחזה</h2><div class="characterGrid">${(DATA.roles||[]).map(r=>{
+ const rs=(DATA.scenes||[]).filter(s=>(s.characters||[]).some(c=>norm(c)===norm(r)));
+ return `<div class="characterCard"><div class="charTitle">${emoji[r]||'🎭'} <b>${esc(r)}</b></div><div class="meta">${rs.length} סצנות</div><div class="charScenes">${rs.slice(0,3).map(s=>`• ${esc(s.title)}`).join('<br>')}${rs.length>3?'<br>• ועוד...':''}</div></div>`;
+}).join('')}</div></div>
  <div class="card install"><h3>📲 שמירה בטלפון</h3><p class="meta">אפשר להוסיף את חיות של אהבה למסך הבית ולהיכנס אליה כמו לאפליקציה.</p><button class="btn" id="installBtn">הוספה למסך הבית</button></div>
  </main>`;
  bindCommon();bindSceneButtons();
@@ -187,7 +191,15 @@ function render(){
  if(state.view==='progress')return progressPage();
  return home();
 }
-fetch('./script-data.json?v=6',{cache:'no-store'}).then(r=>r.json()).then(d=>{DATA=d;state.roles=selectedRoles();state.progress=state.progress||{};state.view='home';save();render()}).catch(()=>{app.innerHTML='<main class="screen"><div class="card">לא הצלחתי לטעון את המחזה. רענני את הדף.</div></main>'});
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+fetch('./script-data.json?v=7',{cache:'no-store'}).then(r=>r.json()).then(d=>{DATA=d;state.roles=selectedRoles();state.progress=state.progress||{};state.view='home';save();render()}).catch(()=>{app.innerHTML='<main class="screen"><div class="card">לא הצלחתי לטעון את המחזה. רענני את הדף.</div></main>'});
+if('serviceWorker' in navigator)window.addEventListener('load',async()=>{
+ try{
+   const regs=await navigator.serviceWorker.getRegistrations();
+   await Promise.all(regs.map(r=>r.unregister()));
+   const keys=await caches.keys();
+   await Promise.all(keys.map(k=>caches.delete(k)));
+   await navigator.serviceWorker.register('./sw.js?v=7');
+ }catch(e){}
+});
 </script>
 </body></html>
