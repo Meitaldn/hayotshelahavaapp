@@ -1,131 +1,26 @@
-<!doctype html>
-<html lang="he" dir="rtl">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#6d4c7d">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon.svg">
-<title>חיות של אהבה 🎭</title>
-<style>
-:root{--ink:#352a38;--muted:#756b78;--paper:#fffdf8;--lav:#8b6c9c;--lav2:#efe5f3;--line:#eadfe7;--shadow:0 8px 25px rgba(70,45,75,.12)}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#faf3eb,#eee6f2 60%,#faf3eb);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif}.app{max-width:760px;margin:auto;min-height:100vh;padding-bottom:40px}
-.top{position:sticky;top:0;z-index:10;background:#fffaf4ee;backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:10px 14px;display:flex;align-items:center;gap:10px}.back{width:42px;height:42px;border:0;border-radius:50%;background:#fff;box-shadow:var(--shadow);font-size:22px}.brand{flex:1}.brand b{font-size:18px}.brand small{display:block;color:var(--muted);font-size:12px}.icon{border:0;background:none;font-size:22px;padding:8px}
-.hero{padding:18px}.house{background:var(--paper);border:1px solid var(--line);border-radius:28px;overflow:hidden;box-shadow:var(--shadow)}.house svg{display:block;width:100%}.hero h1{font:38px Georgia,serif;margin:18px 4px 4px}.hero p{color:var(--muted);margin:0}
-.panel{padding:0 16px}.card{background:#fffdf8f5;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:17px;margin:12px 0}.card h2,.card h3{margin:0 0 7px;font-family:Georgia,serif}.roles{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.role{border:1px solid var(--line);background:#fff;border-radius:17px;padding:11px;text-align:right;display:flex;align-items:center;gap:9px}.avatar{width:42px;height:42px;border-radius:13px;background:var(--lav2);display:grid;place-items:center;font-size:25px}.meta{color:var(--muted);font-size:13px;margin:5px 0 12px}
-.actions{display:flex;gap:8px;flex-wrap:wrap}.primary,.secondary{border:0;border-radius:13px;padding:11px 14px;font-weight:700}.primary{background:var(--lav);color:#fff}.secondary{background:var(--lav2);color:var(--ink)}
-.scene{position:relative}.scene .num{position:absolute;left:14px;top:14px;color:var(--lav);font-weight:800}.scene h3{padding-left:55px}
-.tabs{display:flex;background:#f3ebf5;border-radius:14px;padding:4px;margin:10px 0}.tab{flex:1;border:0;background:none;padding:10px;border-radius:10px;font-weight:700;color:var(--muted)}.tab.active{background:#fff;color:var(--ink);box-shadow:0 2px 8px #0001}
-.reader{background:#fffdf8;border:1px solid var(--line);border-radius:19px;padding:17px;line-height:1.85;white-space:normal;word-break:normal;overflow-wrap:anywhere}.reader .speaker{font-weight:800;color:var(--lav);font-size:17px;margin:18px 0 3px}.reader .stage{color:#756b78;font-style:italic;margin:10px 0}.reader .text{margin:3px 0}
-.exam{min-height:60vh}.progress{height:8px;background:#eee5ef;border-radius:99px;overflow:hidden;margin:12px 0}.progress i{display:block;height:100%;background:var(--lav)}.otherLine{background:#fff;border:1px solid var(--line);border-radius:18px;padding:13px;margin:9px 0}.who{color:var(--lav);font-weight:800}.txt{font-size:20px;line-height:1.75;margin-top:3px}.yourTurn{background:linear-gradient(145deg,#fffaf2,#f4eaf6);border:2px solid #d9c5df;border-radius:20px;padding:17px;margin-top:14px}.turn{font:700 25px Georgia,serif}textarea{width:100%;min-height:115px;margin-top:10px;border:1px solid #d8cadb;border-radius:15px;padding:13px;background:#fff;color:var(--ink);resize:vertical}.feedback{padding:11px;border-radius:13px;margin-top:9px}.good{background:#e7f1e9;color:#315d3a}.bad{background:#f7e4e8;color:#763547}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}.stat b{display:block;font-size:21px}.stat span{font-size:11px;color:var(--muted)}.empty{text-align:center;color:var(--muted);padding:25px}.footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
-@media(min-width:650px){.roles{grid-template-columns:repeat(3,1fr)}}
-</style>
-</head>
-<body><div id="app"></div>
-<script>
-const STORE="hayot-shel-ahava-v2";
-let DATA=null, state=JSON.parse(localStorage.getItem(STORE)||"{}"), exam=null;
-const app=document.getElementById("app");
-const avatars={"זוהר":"🦊","יואל":"🐰","רון":"🐺","נעמה":"👰🏻","חנה":"🐔","תרנגולת":"🐔","שמואל":"🐭","עוז":"🦊","דולב":"🛴","סנאית":"🐿️","חתולה":"🐱","קוקיה":"🐦","עץ":"🌳","כולם":"🎭"};
-function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function save(){localStorage.setItem(STORE,JSON.stringify(state));}
-function normSpeaker(s){return String(s||"").normalize("NFD").replace(/[\u0591-\u05C7]/g,"").trim();}
-function tidy(s){
-  s=String(s||"").replace(/[\u200b\ufeff]/g," ").replace(/\b\d{1,2}\b/g," ");
-  s=s.replace(/\[[^\]]*\]/g," ");
-  s=s.replace(/\s+/g," ").trim();
-  s=s.split(" ").map(w=>{
-    const m=w.match(/^([.,!?;:…]+)(.+)$/);
-    return m?m[2]+m[1]:w;
-  }).join(" ");
-  return s.trim();
-}
-function answerNorm(s){
-  return tidy(s).replace(/[.,!?;:"'״׳…\-–—()[\]{}]/g," ").replace(/\s+/g," ").trim();
-}
-function exactEnough(a,b){
-  a=answerNorm(a); b=answerNorm(b);
-  if(!a||!b)return false;
-  if(a===b)return true;
-  const A=a.split(" "),B=b.split(" "); let i=0,j=0,c=0;
-  while(i<A.length&&j<B.length){if(A[i]===B[j]){c++;i++;j++;}else if(A.length-i>B.length-j)i++;else j++;}
-  return c/Math.max(A.length,B.length)>=.94;
-}
-function shell(title,sub=""){return `<header class="top"><button class="back" id="backBtn">‹</button><div class="brand"><b>${esc(title)}</b><small>${esc(sub)}</small></div><button class="icon" id="roleBtn">🎭</button></header>`}
-function house(){return `<svg viewBox="0 0 760 260" xmlns="http://www.w3.org/2000/svg"><rect width="760" height="260" fill="#f7eadf"/><rect y="185" width="760" height="75" fill="#dfe8d8"/><path d="M130 120L380 35l250 85v110H130z" fill="#fffaf0" stroke="#6d4c7d" stroke-width="5"/><path d="M105 122L380 25l275 97-18 35L380 70 123 157z" fill="#b96d69"/><rect x="190" y="145" width="85" height="115" rx="4" fill="#efe5f3" stroke="#6d4c7d" stroke-width="4"/><rect x="315" y="145" width="85" height="65" rx="4" fill="#e7f1e9" stroke="#6d4c7d" stroke-width="4"/><rect x="440" y="145" width="85" height="65" rx="4" fill="#f4e2e8" stroke="#6d4c7d" stroke-width="4"/><circle cx="90" cy="205" r="43" fill="#9bb38f"/><circle cx="675" cy="205" r="50" fill="#9bb38f"/></svg>`}
-function home(){
- const roles=[...(DATA.roles||[...new Set(DATA.scenes.flatMap(s=>s.characters))])];
- app.innerHTML=shell("חיות של אהבה","אפליקציית חזרות אופליין")+`<section class="hero"><div class="house">${house()}</div><h1>חיות של אהבה</h1><p>בחרי דמות ואז סצנה. בכל סצנה יש בחינה או צפייה מלאה בטקסט.</p></section><section class="panel"><div class="card"><h2>מי את במחזה?</h2><div class="roles">${roles.map(r=>`<button class="role" data-role="${esc(r)}"><span class="avatar">${avatars[r]||"🎭"}</span><span><b>${esc(r)}</b><small class="meta">${DATA.scenes.filter(s=>s.characters.map(normSpeaker).includes(normSpeaker(r))).length} סצנות</small></span></button>`).join("")}</div></div></section>`;
- document.querySelectorAll("[data-role]").forEach(b=>b.onclick=()=>{state.role=b.dataset.role;state.view="scenes";save();render();});
-}
-function scenesPage(){
- const mine=DATA.scenes.filter(s=>s.characters.map(normSpeaker).includes(normSpeaker(state.role)));
- app.innerHTML=shell(`הדמות שלך: ${state.role}`,"הסצנות שבהן את משתתפת")+`<section class="panel"><div class="card"><h2>הסצנות שלך</h2><div class="meta">${mine.length} סצנות</div></div>${mine.map(s=>{const p=state.progress?.[s.id]||{correct:0,attempts:0};return `<div class="card scene"><div class="num">סצנה ${s.id}</div><h3>${esc(s.title)}</h3><div class="meta">${s.characters.join(" · ")}</div>${p.attempts?`<div class="meta">התקדמות: ${p.correct}/${p.attempts} הצלחות</div>`:""}<div class="actions"><button class="primary" data-exam="${s.id}">🎭 בחינה</button><button class="secondary" data-read="${s.id}">📖 צפייה בטקסט</button></div></div>`}).join("")}</section>`;
- document.querySelectorAll("[data-exam]").forEach(b=>b.onclick=()=>startExam(+b.dataset.exam));
- document.querySelectorAll("[data-read]").forEach(b=>b.onclick=()=>{state.view="reader";state.sceneId=+b.dataset.read;save();render();});
-}
-function formatReader(s){
- let raw=String(s.raw||"").replace(/\r/g,"");
- raw=raw.replace(/^\s*סצנה[\s\S]*?\n(?=\s*(?:מוסיקה|קפיצה|\[|:))/,"");
- const known=["זוהר","יואל","רון","נעמה","נַעמה","חנה","תרנגולת","שמואל","עוז","דולב","סנאית","חתולה","קוקיה","עץ","שלושתן","כולם"];
- const re=new RegExp("^\\s*:?[\\s]*("+known.map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")[\\s:]*$");
- const lines=raw.split("\n").map(x=>x.trim()).filter(x=>x && !/^\d{1,2}$/.test(x));
- let out="", current="";
- for(const line of lines){
-   const m=line.match(re);
-   if(m){if(current){out+=`<div class="text">${esc(tidy(current))}</div>`;current=""} out+=`<div class="speaker">${esc(normSpeaker(m[1]))}:</div>`;continue;}
-   if(/^\[.*\]$/.test(line)||/^\].*\[$/.test(line)){if(current){out+=`<div class="text">${esc(tidy(current))}</div>`;current=""}out+=`<div class="stage">${esc(tidy(line))}</div>`;continue;}
-   current+=(current?" ":"")+line;
- }
- if(current)out+=`<div class="text">${esc(tidy(current))}</div>`;
- return out;
-}
-function readerPage(s){
- app.innerHTML=shell(`סצנה ${s.id}`,"צפייה מלאה בטקסט")+`<section class="panel"><div class="card"><h2>${esc(s.title)}</h2><div class="meta">${s.characters.join(" · ")}</div><div class="tabs"><button class="tab active">📖 צפייה בטקסט</button><button class="tab" id="goExam">🎭 בחינה</button></div><div class="reader">${formatReader(s)}</div></div></section>`;
- document.getElementById("goExam").onclick=()=>startExam(s.id);
-}
-function speechForTurn(raw,expected){
- let s=String(raw||"");
- const n=normSpeaker(expected);
- const names=["זוהר","יואל","רון","נעמה","חנה","תרנגולת","שמואל","עוז","דולב","סנאית","חתולה","קוקיה","עץ","שלושתן","כולם"];
- const re=new RegExp("(?:^|\\n)\\s*:?[ ]*("+names.join("|")+")[ ]*:");
- const m=s.match(re);
- if(m && normSpeaker(m[1])!==n) s=s.slice(0,m.index).trim();
- s=s.replace(/\\b(\\d{1,2})\\b/g," ");
- return tidy(s);
-}
-function startExam(id){exam={scene:DATA.scenes.find(s=>s.id===id),turnIndex:0,attempts:0,correct:0,streak:0};state.view="exam";state.sceneId=id;save();render();}
-function renderExam(){
- const s=exam.scene, turns=s.turns||[];
- let idx=exam.turnIndex;
- while(idx<turns.length && normSpeaker(turns[idx][0]||turns[idx].speaker)!==normSpeaker(state.role)) idx++;
- exam.turnIndex=idx;
- if(idx>=turns.length){app.innerHTML=shell(`סיום: סצנה ${s.id}`,"כל התורות שלך הושלמו")+`<section class="panel"><div class="card"><h2>כל הכבוד 🎉</h2><p>סיימת את התורות של ${esc(state.role)} בסצנה.</p><div class="stats"><div class="stat"><b>${exam.correct}</b><span>הצלחות</span></div><div class="stat"><b>${exam.attempts}</b><span>ניסיונות</span></div><div class="stat"><b>${exam.streak}</b><span>רצף</span></div></div><br><button class="primary" id="again">🔁 שוב</button></div></section>`;document.getElementById("again").onclick=()=>startExam(s.id);return;}
- let prev=[];
- for(let i=idx-1;i>=0;i--){if(normSpeaker(turns[i][0]||turns[i].speaker)===normSpeaker(state.role))break;prev.unshift(turns[i]);}
- const progress=Math.round(idx/Math.max(1,turns.length)*100);
- app.innerHTML=shell(`בחינה · סצנה ${s.id}`,"כשהתור שלך מגיע - הטקסט מוסתר")+`<section class="panel exam"><div class="card"><h2>${esc(s.title)}</h2><div class="meta">${esc(state.role)}</div><div class="progress"><i style="width:${progress}%"></i></div>${prev.map(t=>`<div class="otherLine"><div class="who">${esc(t[0]||t.speaker)}</div><div class="txt">${esc(speechForTurn(t[1]??t.raw,t[0]||t.speaker))}</div></div>`).join("")}<div class="yourTurn"><div class="turn">🎭 תורך</div><div class="meta">כתבי את המשפט בדיוק לפי המחזה.</div><textarea id="answer" placeholder="המשפט שלך..."></textarea><div class="actions"><button class="primary" id="check">בדיקה ✓</button><button class="secondary" id="read">📖 צפייה בטקסט</button></div><div id="feedback"></div></div></div></section>`;
- document.getElementById("check").onclick=checkAnswer;document.getElementById("read").onclick=()=>readerPage(s);
-}
-function checkAnswer(){
- const turns=exam.scene.turns||[], raw=turns[exam.turnIndex][1]??turns[exam.turnIndex].raw, target=speechForTurn(raw,turns[exam.turnIndex][0]||turns[exam.turnIndex].speaker), given=document.getElementById("answer").value;
- exam.attempts++;const ok=exactEnough(given,target);
- const p=state.progress?.[exam.scene.id]||{correct:0,attempts:0,best:0};p.attempts++;if(ok){exam.correct++;exam.streak++;p.correct++;p.best=Math.max(p.best,exam.streak)}else exam.streak=0;state.progress=state.progress||{};state.progress[exam.scene.id]=p;save();
- const box=document.getElementById("feedback");
- if(ok){box.innerHTML='<div class="feedback good">✓ נכון! ממשיכים.</div>';setTimeout(()=>{exam.turnIndex++;render()},500);}
- else{box.innerHTML=`<div class="feedback bad"><b>לא בדיוק.</b><br>הטקסט המדויק:<br><strong>${esc(target)}</strong></div>`;document.getElementById("answer").focus();}
-}
-function render(){
- if(!DATA)return;
- if(state.view==="scenes"&&state.role)scenesPage();else if(state.view==="reader"&&state.sceneId)readerPage(DATA.scenes.find(s=>s.id===state.sceneId));else if(state.view==="exam"&&exam)renderExam();else home();
- document.getElementById("backBtn")?.addEventListener("click",()=>{state.view="scenes";save();render()});
- document.getElementById("roleBtn")?.addEventListener("click",()=>{state.view="home";save();render()});
-}
-fetch("./script-data.json").then(r=>r.json()).then(d=>{DATA=d;state.progress=state.progress||{};render()}).catch(()=>{app.innerHTML='<div class="card">לא הצלחתי לטעון את טקסט המחזה. רענני את הדף.</div>';});
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
-}
-</script>
-</body></html>
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#76557d"><link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg"><title>חיות של אהבה 🎭</title><style>
+:root{--ink:#382d3d;--muted:#75697a;--cream:#fffaf1;--paper:#fffdf8;--purple:#76557d;--purple2:#a786ad;--pink:#ead9e8;--line:#eadfe7;--shadow:0 10px 28px #4a355214}*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#f5edf6,#fffaf2 45%,#f5efe6);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif}.app{max-width:780px;margin:auto;min-height:100vh}.top{position:sticky;top:0;z-index:10;background:#fffaf1ee;backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:11px 14px;display:flex;align-items:center;gap:10px}.back{border:0;background:transparent;font-size:28px;color:var(--purple);width:38px}.brand{flex:1;font-weight:900}.sub{display:block;font-size:12px;color:var(--muted);font-weight:500}.top button{cursor:pointer}.screen{padding:16px}.card{background:#fffdf8e8;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:16px;margin-bottom:12px}.hero{overflow:hidden;padding:0}.house{background:#eef2ec}.house svg{display:block;width:100%;height:220px}.heroText{padding:17px}.hero h1{margin:0 0 5px;font:34px Georgia,serif}.hero p{margin:0;color:var(--muted)}h2,h3{font-family:Georgia,serif}.roles{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.role{border:2px solid var(--line);background:#fff;border-radius:18px;padding:11px;text-align:right;display:flex;align-items:center;gap:9px}.role.sel{border-color:var(--purple2);background:#fbf4fc}.avatar{width:43px;height:43px;border-radius:13px;background:#f0e4ef;display:grid;place-items:center;font-size:25px}.scene{padding:14px;border:1px solid var(--line);border-radius:18px;background:#fff;margin:10px 0}.sceneNo{font-weight:900;color:var(--purple)}.scene h3{margin:3px 0}.meta{font-size:12px;color:var(--muted)}.btn{border:0;border-radius:13px;padding:10px 13px;background:var(--purple);color:#fff;font-weight:800}.btn.secondary{background:#eee4ef;color:var(--ink)}.btn.ghost{background:transparent;color:var(--purple);padding:8px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.tabs{display:flex;gap:4px;background:#f0e7ef;border-radius:14px;padding:4px;margin:10px 0}.tab{flex:1;border:0;background:transparent;border-radius:10px;padding:10px;font-weight:800;color:var(--muted)}.tab.active{background:#fff;color:var(--ink);box-shadow:0 2px 8px #0001}.event{position:relative;margin:10px 0}.dialogue{background:#fff;border:1px solid var(--line);border-radius:17px;padding:12px 13px}.speaker{font-weight:900;color:var(--purple);margin-bottom:4px}.spoken{font-size:19px;line-height:1.75;white-space:pre-wrap}.stage{color:#786d7b;font-size:13px;font-style:italic;text-align:center;margin:8px 0}.noteBox{margin-top:8px;background:#fbf4fc;border:1px solid #ddcce1;border-radius:13px;padding:9px}.noteBox textarea{width:100%;min-height:68px;border:1px solid #d9cbdc;border-radius:10px;padding:9px;background:#fff;color:var(--ink);font:inherit}.noteHead{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);margin-bottom:5px}.noteSaved{font-size:11px;color:#5d7c55}.examTurn{background:#fff4c8;border:2px solid #eadb92;border-radius:18px;padding:16px;margin:12px 0}.examTurn h3{margin:0 0 4px}.answer{width:100%;min-height:105px;border:1px solid #d7cadb;border-radius:13px;padding:11px;font:inherit}.feedback{margin-top:8px;padding:11px;border-radius:13px}.good{background:#e7f1e5;color:#40583b}.bad{background:#f8e7e7;color:#713d3d}.progress{height:8px;background:#eee5ef;border-radius:99px;overflow:hidden;margin:10px 0}.progress i{display:block;height:100%;background:var(--purple)}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}.stat b{display:block;font-size:21px}.stat span{font-size:11px;color:var(--muted)}.noteItem{background:#fff;border:1px solid var(--line);border-radius:15px;padding:12px;margin:8px 0}.empty{text-align:center;color:var(--muted);padding:25px}.footer{text-align:center;color:var(--muted);font-size:11px;padding:20px}@media(min-width:650px){.roles{grid-template-columns:repeat(3,1fr)}}
+</style></head><body><div id="app"></div><script>
+const KEY='hayot_shel_ahava_v2'; const NOTES_KEY='hayot_shel_ahava_notes_v1'; let DATA=null, state=JSON.parse(localStorage.getItem(KEY)||'{}'), notes=JSON.parse(localStorage.getItem(NOTES_KEY)||'{}'), exam=null; const app=document.getElementById('app');
+const emoji={"זוהר":"🦊","יואל":"🐿️","רון":"🐓","נעמה":"🦋","חנה":"🐔","תרנגולת":"🐔","שמואל":"🐭","עוז":"🐺","דולב":"🛵","סנאית":"🐿️","חתולה":"🐱","קוקיה":"🐦","עץ":"🌳"};
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))} function save(){localStorage.setItem(KEY,JSON.stringify(state))} function saveNotes(){localStorage.setItem(NOTES_KEY,JSON.stringify(notes))} function norm(s){return String(s||'').normalize('NFD').replace(/[֑-ׇ]/g,'').trim()} function cleanSpoken(s){return String(s||'').replace(/\[[\s\S]*?\]/g,' ').replace(/[​﻿]/g,' ').replace(/\s+/g,' ').trim()} function compare(s){return cleanSpoken(s).replace(/[.,!?;:"'״׳…()\[\]{}\-–—]/g,' ').replace(/\s+/g,' ').trim()}
+function same(a,b){a=compare(a);b=compare(b);if(!a||!b)return false;if(a===b)return true;const A=a.split(' '),B=b.split(' ');let i=0,j=0,c=0;while(i<A.length&&j<B.length){if(A[i]===B[j]){c++;i++;j++}else if(A.length-i>B.length-j)i++;else j++}return c/Math.max(A.length,B.length)>=.94}
+function house(){return '<svg viewBox="0 0 760 240" xmlns="http://www.w3.org/2000/svg"><rect width="760" height="240" fill="#f7eadf"/><rect y="175" width="760" height="65" fill="#dfe8d8"/><path d="M130 110L380 25l250 85v115H130z" fill="#fffaf0" stroke="#76557d" stroke-width="5"/><path d="M105 112L380 18l275 94-18 34L380 62 123 146z" fill="#b96d69"/><rect x="190" y="137" width="85" height="103" fill="#efe5f3" stroke="#76557d" stroke-width="4"/><rect x="315" y="137" width="85" height="62" fill="#e7f1e9" stroke="#76557d" stroke-width="4"/><rect x="440" y="137" width="85" height="62" fill="#f4e2e8" stroke="#76557d" stroke-width="4"/><circle cx="80" cy="198" r="40" fill="#9bb38f"/><circle cx="680" cy="198" r="46" fill="#9bb38f"/></svg>'}
+function shell(title,sub=''){return `<header class="top"><button class="back" id="back">‹</button><div class="brand">${esc(title)}<span class="sub">${esc(sub)}</span></div><button class="btn secondary" id="notesBtn">📝</button></header>`}
+function home(){app.innerHTML=`${shell('חיות של אהבה','בחירת דמות')}<main class="screen"><div class="card hero"><div class="house">${house()}</div><div class="heroText"><h1>חיות של אהבה</h1><p>בחרי דמות כדי לראות רק את הסצנות שלה.</p></div></div><div class="card"><h2>בחרי דמות</h2><div class="roles">${DATA.roles.map(r=>`<button class="role" data-role="${esc(r)}"><span class="avatar">${emoji[r]||'🎭'}</span><span><b>${esc(r)}</b><span class="meta">${DATA.scenes.filter(s=>s.characters.map(norm).includes(norm(r))).length} סצנות</span></span></button>`).join('')}</div></div></main>`;bindCommon();document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{state.role=b.dataset.role;state.view='scenes';save();render()})}
+function scenes(){const mine=DATA.scenes.filter(s=>s.characters.map(norm).includes(norm(state.role)));app.innerHTML=`${shell(state.role,'הסצנות שלך')}<main class="screen"><div class="card"><h2>הסצנות של ${esc(state.role)}</h2><div class="actions"><button class="btn secondary" id="allNotes">📝 כל ההערות שלי</button></div></div>${mine.map(s=>`<div class="scene"><div class="sceneNo">סצנה ${s.id}</div><h3>${esc(s.title)}</h3><div class="meta">${s.characters.join(' · ')}</div><div class="actions"><button class="btn" data-exam="${s.id}">🎭 בחינה</button><button class="btn secondary" data-read="${s.id}">📖 צפייה בטקסט</button></div></div>`).join('')}</main>`;bindCommon();document.querySelectorAll('[data-exam]').forEach(b=>b.onclick=()=>startExam(+b.dataset.exam));document.querySelectorAll('[data-read]').forEach(b=>b.onclick=()=>{state.view='reader';state.sceneId=+b.dataset.read;save();render()});document.getElementById('allNotes').onclick=notesPage}
+function splitStage(text){const out=[];let last=0,re=/\[[\s\S]*?\]/g,m;while((m=re.exec(text))){if(m.index>last)out.push({type:'spoken',text:text.slice(last,m.index)});out.push({type:'stage',text:m[0]});last=m.index+m[0].length}if(last<text.length)out.push({type:'spoken',text:text.slice(last)});return out.filter(x=>x.text.trim())}
+function noteKey(scene,event){return `${state.role}|${scene.id}|${event}`}
+function noteEditor(scene,event,inline=false){const k=noteKey(scene,event),v=notes[k]||'';return `<div class="noteBox"><div class="noteHead"><b>📝 ההערה שלי</b><span class="noteSaved">נשמרת בטלפון אוטומטית</span></div><textarea data-note="${scene.id}:${event}" placeholder="כתבי לעצמך הערה..."></textarea></div>`}
+function bindNotes(){document.querySelectorAll('[data-note]').forEach(t=>{const [sid,eid]=t.dataset.note.split(':');const k=noteKey(DATA.scenes.find(s=>s.id==sid),eid);t.value=notes[k]||'';t.addEventListener('input',()=>{notes[k]=t.value;saveNotes()})})}
+function reader(){const s=DATA.scenes.find(x=>x.id==state.sceneId);let html='';s.events.forEach((e,i)=>{if(e.type==='stage'){html+=`<div class="stage">${esc(e.text)}</div>`;return}html+=`<div class="event"><div class="dialogue"><div class="speaker">${esc(e.speaker)}:</div>${splitStage(e.text).map(x=>x.type==='stage'?`<div class="stage">${esc(x.text)}</div>`:`<div class="spoken">${esc(x.text.trim())}</div>`).join('')}</div>${noteEditor(s,i)}</div>`});app.innerHTML=`${shell('סצנה '+s.id,'צפייה מלאה בטקסט')}<main class="screen"><div class="card"><h2>${esc(s.title)}</h2><div class="tabs"><button class="tab active">📖 צפייה בטקסט</button><button class="tab" id="examGo">🎭 בחינה</button></div>${html}</div></main>`;bindCommon();bindNotes();document.getElementById('examGo').onclick=()=>startExam(s.id)}
+function startExam(id){const s=DATA.scenes.find(x=>x.id===id);exam={scene:s,index:-1,attempts:0,correct:0,streak:0};advance();state.view='exam';state.sceneId=id;save();render()}
+function advance(){const es=exam.scene.events;for(let i=exam.index+1;i<es.length;i++){if(es[i].type==='dialogue'&&norm(es[i].speaker)===norm(state.role)){exam.index=i;return}}exam.index=es.length}
+function examView(){const s=exam.scene,es=s.events;if(exam.index>=es.length){app.innerHTML=`${shell('סיום · סצנה '+s.id,'כל התורות שלך הושלמו')}<main class="screen"><div class="card"><h2>כל הכבוד 🎉</h2><div class="stats"><div class="stat"><b>${exam.correct}</b><span>הצלחות</span></div><div class="stat"><b>${exam.attempts}</b><span>ניסיונות</span></div><div class="stat"><b>${exam.streak}</b><span>רצף</span></div></div><div class="actions"><button class="btn" id="again">🔁 שוב</button><button class="btn secondary" id="reader">📖 הטקסט</button></div></div></main>`;bindCommon();document.getElementById('again').onclick=()=>startExam(s.id);document.getElementById('reader').onclick=()=>{state.view='reader';save();render()};return}
+let previous=[];for(let i=exam.index-1;i>=0;i--){if(es[i].type==='dialogue'&&norm(es[i].speaker)===norm(state.role))break;previous.unshift(es[i])}let before=previous.map(e=>e.type==='stage'?`<div class="stage">${esc(e.text)}</div>`:`<div class="dialogue"><div class="speaker">${esc(e.speaker)}:</div><div class="spoken">${esc(cleanSpoken(e.text))}</div></div>`).join('');const target=cleanSpoken(es[exam.index].text);const pct=Math.round((exam.index/Math.max(1,es.length))*100);app.innerHTML=`${shell('בחינה · סצנה '+s.id,'כשהתור שלך מגיע הטקסט מוסתר')}<main class="screen"><div class="card"><h2>${esc(s.title)}</h2><div class="progress"><i style="width:${pct}%"></i></div>${before}<div class="examTurn"><h3>🎭 תורך · ${esc(state.role)}</h3><div class="meta">כתבי את המשפט לפי המחזה.</div><textarea class="answer" id="answer" placeholder="המשפט שלך..."></textarea>${noteEditor(s,exam.index)}<div class="actions"><button class="btn" id="check">בדיקה ✓</button><button class="btn secondary" id="readText">📖 הטקסט</button></div><div id="feedback"></div></div></div></main>`;bindCommon();bindNotes();document.getElementById('check').onclick=check;document.getElementById('readText').onclick=()=>{state.view='reader';save();render()}}
+function check(){const target=cleanSpoken(exam.scene.events[exam.index].text),given=document.getElementById('answer').value;exam.attempts++;const ok=same(given,target);const box=document.getElementById('feedback');if(ok){exam.correct++;exam.streak++;box.innerHTML='<div class="feedback good">✓ נכון! ממשיכים.</div>';setTimeout(()=>{advance();render()},450)}else{exam.streak=0;box.innerHTML=`<div class="feedback bad"><b>לא בדיוק.</b><br>הטקסט המדויק הוא:<br><strong>${esc(target)}</strong></div>`}}
+function notesPage(){const arr=[];DATA.scenes.forEach(s=>s.events.forEach((e,i)=>{const v=notes[noteKey(s,i)];if(v)arr.push({s,e,i,v})}));app.innerHTML=`${shell('ההערות שלי',state.role)}<main class="screen"><div class="card"><h2>📝 ההערות שלי</h2>${arr.length?arr.map(x=>`<div class="noteItem"><b>סצנה ${x.s.id} · ${esc(x.e.speaker||'הוראת במה')}</b><div>${esc(x.v)}</div></div>`).join(''):'<div class="empty">עדיין אין הערות. אפשר להוסיף אותן ליד כל משפט.</div>'}</div></main>`;bindCommon()}
+function bindCommon(){document.getElementById('back')?.addEventListener('click',()=>{if(state.view==='scenes'||state.view==='home')state.view='home';else state.view='scenes';save();render()});document.getElementById('notesBtn')?.addEventListener('click',notesPage)}
+function render(){if(!DATA)return;if(!state.role||state.view==='home')home();else if(state.view==='scenes')scenes();else if(state.view==='reader')reader();else if(state.view==='exam'&&exam)examView();else home()}
+fetch('./script-data.json').then(r=>r.json()).then(d=>{DATA=d;render()}).catch(()=>{app.innerHTML='<div class="card">שגיאה בטעינת המחזה. רענני את הדף.</div>'});if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script></body></html>
