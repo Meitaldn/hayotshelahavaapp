@@ -1,42 +1,51 @@
-const CACHE='hayot-shel-ahava-v10';
+const CACHE='hayot-shel-ahava-v11';
 const ASSETS=['./','./index.html','./script-data.json','./manifest.json','./icon.svg'];
 
+const INJECT = '\n(() => {\n  state.edits = state.edits || {};\n\n  function editKey(sceneId,eventIndex){return String(sceneId)+\':\'+String(eventIndex)}\n  function roleEdits(role=state.role){\n    state.edits = state.edits || {};\n    state.edits[role] = state.edits[role] || {};\n    return state.edits[role];\n  }\n  function getEdit(sceneId,eventIndex,original,role=state.role){\n    if(!role)return null;\n    const e=roleEdits(role)[editKey(sceneId,eventIndex)];\n    return e && e.original===original && typeof e.text===\'string\' ? e : null;\n  }\n  function effectiveText(sceneId,eventIndex,original,role=state.role){\n    const e=getEdit(sceneId,eventIndex,original,role);\n    return e ? e.text : original;\n  }\n  function stageRegex(){return /(\\[[\\s\\S]*?\\]|\\][\\s\\S]*?\\[)/g}\n  function normalizeStageMarker(s){\n    return String(s||\'\').replace(/^\\]\\s*/,\'[\').replace(/\\s*\\[$/,\']\');\n  }\n  function cleanSpoken(s){\n    return String(s||\'\')\n      .replace(stageRegex(),\' \')\n      .replace(/[\\u200b\\ufeff]/g,\' \')\n      .replace(/\\s+/g,\' \').trim();\n  }\n  function compare(s){\n    return cleanSpoken(s)\n      .replace(/[.,!?;:"\'״׳…()\\[\\]{}\\-–—]/g,\' \')\n      .replace(/\\s+/g,\' \').trim();\n  }\n  function splitStage(text){\n    const out=[]; let last=0, re=stageRegex(), m;\n    text=String(text||\'\');\n    while((m=re.exec(text))){\n      if(m.index>last) out.push({type:\'spoken\',text:text.slice(last,m.index)});\n      out.push({type:\'stage\',text:normalizeStageMarker(m[0])});\n      last=m.index+m[0].length;\n    }\n    if(last<text.length) out.push({type:\'spoken\',text:text.slice(last)});\n    return out.filter(x=>x.text.trim());\n  }\n\n  const _shell=shell;\n  shell=function(title,sub=\'\'){\n    return _shell(title,sub).replace(\'aria-label="חזרה">←</button>\',\'aria-label="חזרה">→</button>\');\n  };\n\n  function openEditor(sceneId,eventIndex){\n    const s=DATA.scenes.find(x=>x.id===sceneId), e=s?.events?.[eventIndex];\n    if(!s || !e || e.type!==\'dialogue\' || norm(e.speaker)!==norm(state.role)) return;\n    const current=effectiveText(sceneId,eventIndex,e.text,state.role);\n    const wrap=document.createElement(\'div\');\n    wrap.className=\'editOverlay\';\n    wrap.innerHTML=`\n      <div class="editModal" dir="rtl">\n        <h2>✏️ עריכת הטקסט שלי</h2>\n        <div class="meta">סצנה ${s.id} · ${esc(e.speaker)}</div>\n        <div class="editLabel">הטקסט המקורי</div>\n        <div class="editOriginal">${esc(cleanSpoken(e.text))}</div>\n        <div class="editLabel">הטקסט שיופיע בהרצות הבאות</div>\n        <textarea id="myEditText" dir="rtl">${esc(cleanSpoken(current))}</textarea>\n        <div class="actions">\n          <button class="btn" id="saveMyEdit">שמירה</button>\n          <button class="btn secondary" id="cancelMyEdit">ביטול</button>\n          ${getEdit(sceneId,eventIndex,e.text,state.role)?\'<button class="btn ghost" id="resetMyEdit">חזרה למקור</button>\':\'\'}\n        </div>\n      </div>`;\n    document.body.appendChild(wrap);\n    const close=()=>wrap.remove();\n    wrap.querySelector(\'#cancelMyEdit\').onclick=close;\n    wrap.querySelector(\'#saveMyEdit\').onclick=()=>{\n      const text=wrap.querySelector(\'#myEditText\').value.trim();\n      const edits=roleEdits(state.role),key=editKey(sceneId,eventIndex);\n      if(!text || text===e.text.trim()) delete edits[key];\n      else edits[key]={sceneId,eventIndex,original:e.text,text,updatedAt:new Date().toISOString()};\n      save(); close(); render();\n    };\n    wrap.querySelector(\'#resetMyEdit\')?.addEventListener(\'click\',()=>{\n      delete roleEdits(state.role)[editKey(sceneId,eventIndex)];\n      save(); close(); render();\n    });\n    wrap.addEventListener(\'click\',ev=>{if(ev.target===wrap)close()});\n    setTimeout(()=>wrap.querySelector(\'#myEditText\')?.focus(),30);\n  }\n\n  function settingsPage(){\n    if(!state.role){home();return}\n    const role=state.role, edits=Object.values(roleEdits(role));\n    app.innerHTML=shell(\'עריכות\',\'הטקסט האישי שלך\')+`\n      <main class="screen">\n        <div class="card">\n          <h2>✏️ עריכות הטקסט שלי</h2>\n          <div class="meta">השינויים נשמרים אוטומטית במכשיר הזה. בהרצות הבאות ${esc(role)} תראה את הגרסה האישית שלה.</div>\n          <div class="actions" style="margin-top:12px">\n            <button class="btn" id="exportEdits">📤 ייצוא עריכות</button>\n            <button class="btn secondary" id="importEdits">📥 ייבוא עריכות</button>\n            <button class="btn ghost" id="clearEdits">🗑️ מחיקת העריכות</button>\n          </div>\n          <input id="editFileInput" type="file" accept=".json,application/json" style="display:none">\n          ${edits.length ? `<div class="editList">${edits.map(x=>`\n            <div class="editItem">\n              <div class="meta">סצנה ${x.sceneId} · שורה ${Number(x.eventIndex)+1}</div>\n              <div class="oldText">${esc(cleanSpoken(x.original))}</div>\n              <div class="newText">${esc(x.text)}</div>\n            </div>`).join(\'\')}</div>` : \'<div class="empty" style="margin-top:14px">עדיין אין עריכות אישיות.</div>\'}\n        </div>\n      </main>`;\n    bindCommon();\n    document.getElementById(\'exportEdits\').onclick=exportEdits;\n    document.getElementById(\'importEdits\').onclick=()=>document.getElementById(\'editFileInput\').click();\n    document.getElementById(\'clearEdits\').onclick=()=>{\n      if(confirm(\'למחוק את כל העריכות האישיות של \'+role+\' מהמכשיר?\')){\n        state.edits[role]={}; save(); settingsPage();\n      }\n    };\n    document.getElementById(\'editFileInput\').onchange=async ev=>{\n      const file=ev.target.files?.[0]; if(!file)return;\n      try{\n        const data=JSON.parse(await file.text());\n        if(data.app!==\'חיות של אהבה\'||data.role!==role||!Array.isArray(data.edits)) throw new Error();\n        let added=0;\n        for(const x of data.edits){\n          const s=DATA.scenes.find(sc=>String(sc.id)===String(x.sceneId));\n          const e=s?.events?.[Number(x.eventIndex)];\n          if(e?.type===\'dialogue\' && norm(e.speaker)===norm(role) &&\n             e.text===x.original && typeof x.text===\'string\' && x.text.trim()){\n            roleEdits(role)[editKey(x.sceneId,x.eventIndex)]={\n              sceneId:x.sceneId,eventIndex:Number(x.eventIndex),original:x.original,\n              text:x.text.trim(),updatedAt:x.updatedAt||new Date().toISOString()\n            };\n            added++;\n          }\n        }\n        save(); alert(\'נטענו \'+added+\' עריכות.\'); settingsPage();\n      }catch(e){\n        alert(\'לא הצלחתי לטעון את הקובץ. ודאי שזה קובץ עריכות של אותה דמות וגרסת המחזה.\');\n      }\n      ev.target.value=\'\';\n    };\n  }\n\n  function exportEdits(){\n    const role=state.role; if(!role)return;\n    const payload={\n      app:\'חיות של אהבה\', schema:1, role,\n      exportedAt:new Date().toISOString(),\n      edits:Object.values(roleEdits(role))\n    };\n    const blob=new Blob([JSON.stringify(payload,null,2)],{type:\'application/json;charset=utf-8\'});\n    const url=URL.createObjectURL(blob), a=document.createElement(\'a\');\n    a.href=url;\n    a.download=\'hayot-edits-\'+role+\'-\'+new Date().toISOString().slice(0,10)+\'.json\';\n    document.body.appendChild(a); a.click(); a.remove();\n    setTimeout(()=>URL.revokeObjectURL(url),1000);\n  }\n\n  const _home=home;\n  home=function(){\n    _home();\n    const hb=document.querySelector(\'.homeBtns\');\n    if(hb && !document.getElementById(\'editsBtn\')){\n      const b=document.createElement(\'button\');\n      b.className=\'btn secondary\'; b.id=\'editsBtn\'; b.textContent=\'✏️ עריכות\';\n      hb.appendChild(b); b.onclick=settingsPage;\n    }\n    document.querySelectorAll(\'.stage\').forEach(el=>{\n      el.textContent=normalizeStageMarker(el.textContent);\n      el.style.direction=\'rtl\';\n      el.style.unicodeBidi=\'isolate\';\n      el.style.textAlign=\'right\';\n    });\n  };\n\n  const _reader=reader;\n  reader=function(id){\n    _reader(id);\n    const s=DATA.scenes.find(x=>x.id===id);\n    if(!s)return;\n    const events=s.events||[];\n    let di=0;\n    document.querySelectorAll(\'.event\').forEach(node=>{\n      while(di<events.length && events[di].type!==\'dialogue\')di++;\n      const e=events[di++];\n      if(!e)return;\n      if(norm(e.speaker)===norm(state.role)){\n        const shown=effectiveText(s.id,di-1,e.text,state.role);\n        const target=node.querySelector(\'.originalText\');\n        if(target)target.textContent=shown;\n        if(getEdit(s.id,di-1,e.text,state.role)){\n          const sp=node.querySelector(\'.speaker\');\n          if(sp&&!sp.querySelector(\'.editBadge\')){\n            const badge=document.createElement(\'span\');\n            badge.className=\'editBadge\';badge.textContent=\'הטקסט שלי\';sp.appendChild(badge);\n          }\n        }\n      }\n    });\n    document.querySelectorAll(\'.stage\').forEach(el=>el.textContent=normalizeStageMarker(el.textContent));\n  };\n\n  const _examPage=examPage;\n  examPage=function(){\n    _examPage();\n    if(!exam || exam.index >= (exam.scene.events||[]).length)return;\n    const e=exam.scene.events[exam.index];\n    if(!e || e.type!==\'dialogue\' || norm(e.speaker)!==norm(state.role))return;\n    const target=effectiveText(exam.scene.id,exam.index,e.text,exam.role);\n    const checkBtn=document.getElementById(\'check\');\n    if(checkBtn)checkBtn.onclick=()=>check(target);\n    const actions=checkBtn?.parentElement;\n    if(actions && !document.getElementById(\'editCurrent\')){\n      const b=document.createElement(\'button\');\n      b.className=\'btn secondary\'; b.id=\'editCurrent\'; b.textContent=\'✏️ עריכת השורה\';\n      b.onclick=()=>openEditor(exam.scene.id,exam.index);\n      actions.insertBefore(b,document.getElementById(\'readNow\'));\n    }\n    document.querySelectorAll(\'.stage\').forEach(el=>el.textContent=normalizeStageMarker(el.textContent));\n  };\n\n  // Add styles without touching the original stylesheet.\n  const st=document.createElement(\'style\');\n  st.textContent=`\n    .editBadge{display:inline-block;margin-right:6px;padding:3px 8px;border-radius:999px;background:#eee2f1;color:#765080;font-size:11px;font-weight:800}\n    .editOverlay{position:fixed;inset:0;z-index:100;background:rgba(48,39,53,.42);display:flex;align-items:flex-end;justify-content:center;padding:12px}\n    .editModal{width:min(760px,100%);max-height:90vh;overflow:auto;background:#fffdf9;border:1px solid #eadfe9;border-radius:26px;padding:18px;box-shadow:0 18px 60px rgba(48,39,53,.25)}\n    .editModal textarea{width:100%;min-height:150px;resize:vertical;direction:rtl;text-align:right;border:1px solid #d9c9dc;border-radius:16px;padding:13px;font:inherit;line-height:1.6;background:#fff}\n    .editLabel{font-size:13px;color:#776d7a;margin:12px 0 5px}\n    .editOriginal,.oldText{padding:10px;border-radius:14px;background:#faf5fb;border:1px solid #eadfe9;line-height:1.6}\n    .newText{font-weight:800;margin-top:5px;line-height:1.6}\n    .editItem{padding:12px;border:1px solid #eadfe9;border-radius:16px;background:#faf5fb;margin-top:9px}\n  `;\n  document.head.appendChild(st);\n\n  // Re-render once so the corrected RTL arrow/UI is visible immediately.\n  try{render()}catch(e){}\n})();\n';
+
+function inject(html){
+  if(!html.includes('</body>')) return html;
+  return html.replace('</body>', '<script>'+INJECT+'</script></body>');
+}
+
 self.addEventListener('install',event=>{
- event.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));
+  event.waitUntil(
+    caches.open(CACHE)
+      .then(cache=>cache.addAll(ASSETS))
+      .then(()=>self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate',event=>{
- event.waitUntil(
-  caches.keys()
-   .then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))
-   .then(()=>self.clients.claim())
- );
+  event.waitUntil(
+    caches.keys()
+      .then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key))))
+      .then(()=>self.clients.claim())
+  );
 });
 
 self.addEventListener('fetch',event=>{
- const url=new URL(event.request.url);
- const fresh = event.request.mode==='navigate' ||
-               url.pathname.endsWith('/index.html') ||
-               url.pathname.endsWith('/script-data.json');
-
- if(fresh){
-  event.respondWith(
-   fetch(event.request,{cache:'no-store'})
-    .then(response=>{
-      const copy=response.clone();
-      caches.open(CACHE).then(c=>c.put(event.request,copy));
+  if(event.request.method!=='GET') return;
+  event.respondWith((async()=>{
+    try{
+      let response=await caches.match(event.request);
+      if(!response) {
+        response=await fetch(event.request);
+        if(response.ok) caches.open(CACHE).then(c=>c.put(event.request,response.clone()));
+      }
+      if(event.request.mode==='navigate' || event.request.destination==='document' ||
+         event.request.url.endsWith('/index.html')) {
+        const html=await response.clone().text();
+        return new Response(inject(html),{status:response.status,headers:response.headers});
+      }
       return response;
-    })
-    .catch(()=>caches.match(event.request).then(r=>r||caches.match('./index.html')))
-  );
- }else{
-  event.respondWith(
-   caches.match(event.request)
-    .then(r=>r||fetch(event.request).then(response=>{
-      const copy=response.clone();
-      caches.open(CACHE).then(c=>c.put(event.request,copy));
-      return response;
-    }).catch(()=>caches.match('./index.html')))
-  );
- }
+    }catch(e){
+      const fallback=await caches.match('./index.html');
+      if(fallback){
+        const html=await fallback.text();
+        return new Response(inject(html),{status:200,headers:fallback.headers});
+      }
+      return new Response('Offline',{status:503});
+    }
+  })());
 });
